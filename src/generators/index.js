@@ -1,5 +1,6 @@
 const DalleGenerator = require('./dalle');
 const StableDiffusionGenerator = require('./stable');
+const GPT4oGenerator = require('./gpt4o');
 
 /**
  * Generator factory for creating image generators
@@ -11,6 +12,7 @@ class GeneratorFactory {
     // Register default generators
     this.register('dall-e', DalleGenerator);
     this.register('stable-diffusion', StableDiffusionGenerator);
+    this.register('gpt4o', GPT4oGenerator);
   }
 
   /**

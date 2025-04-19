@@ -11,9 +11,15 @@ module.exports = {
     },
     stability: {
       apiKey: process.env.STABILITY_API_KEY || '',
-      model: 'stable-diffusion-xl-1024-v1-0',
+      model: 'stable-diffusion-xl-turbo',
       steps: 30,
       cfgScale: 7
+    },
+    gpt4o: {
+      apiKey: process.env.OPENAI_API_KEY || '',  // Uses the same OpenAI API key
+      size: '1024x1024',
+      style: 'natural',
+      quality: 'standard'
     }
   },
   
@@ -25,7 +31,7 @@ module.exports = {
   },
   
   // Default generators to use
-  generators: ['dall-e', 'stable-diffusion'],
+  generators: ['dall-e', 'stable-diffusion', 'gpt4o'],
   
   // HTML display settings
   display: {

@@ -42,7 +42,7 @@ function writeEnvFile(openaiKey, stabilityKey) {
   let content = `# API Keys for image generation\n\n`;
   
   // Add OpenAI key
-  content += `# OpenAI API key for DALL-E integration\n`;
+  content += `# OpenAI API key for DALL-E and GPT-4o integration\n`;
   content += `OPENAI_API_KEY=${openaiKey}\n\n`;
   
   // Add Stability key if provided
