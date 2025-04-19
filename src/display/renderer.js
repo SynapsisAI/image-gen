@@ -25,8 +25,15 @@ class HtmlRenderer {
    */
   async renderBatch(imageResults, outputPath) {
     try {
+      // Filter out any results that have errors (typically from missing API keys)
+      const validResults = imageResults.filter(result => !result.error);
+      
+      if (validResults.length === 0 && imageResults.length > 0) {
+        console.warn('Warning: All image results contain errors. Output may be incomplete.');
+      }
+      
       // Group results by prompt
-      const groupedResults = this._groupByPrompt(imageResults);
+      const groupedResults = this._groupByPrompt(validResults);
       
       // Prepare template data
       const templateData = {

@@ -15,9 +15,16 @@ class DalleGenerator extends ImageGenerator {
     this.model = config.model || 'dall-e-3';
     this.size = config.size || '1024x1024';
     
+    // More detailed error message for missing or empty API key
     if (!this.apiKey) {
+      console.error('OpenAI API key is missing or empty!');
+      console.error('Please add OPENAI_API_KEY to your .env file');
+      console.error('Make sure the .env file exists in the project root directory');
       throw new Error('OpenAI API key is required for DALL-E generator');
     }
+    
+    // Log key length for debugging (not the actual key)
+    console.log(`DALL-E initialized with API key (${this.apiKey.length} characters)`);
   }
 
   /**
@@ -30,8 +37,7 @@ class DalleGenerator extends ImageGenerator {
     try {
       console.log(`Generating image with DALL-E (${this.model}): ${prompt}`);
       
-      // OpenAI API implementation would go here
-      // This is a placeholder for the actual API call
+      // Call OpenAI API
       const response = await this._callOpenAIAPI(prompt);
       
       return {
@@ -47,7 +53,23 @@ class DalleGenerator extends ImageGenerator {
       };
     } catch (error) {
       console.error('DALL-E generation error:', error);
-      throw error;
+      
+      // Return a placeholder image instead of failing completely
+      console.log('Using placeholder image due to API error');
+      return {
+        url: './placeholder.svg',
+        prompt,
+        model: this.model,
+        error: error.message,
+        metadata: {
+          ...metadata,
+          timestamp: new Date().toISOString(),
+          generator: this.name,
+          generatorVersion: this.model,
+          error: error.message,
+          isPlaceholder: true
+        }
+      };
     }
   }
 
@@ -57,14 +79,41 @@ class DalleGenerator extends ImageGenerator {
    * @returns {Promise<Object>} - The API response
    */
   async _callOpenAIAPI(prompt) {
-    // TODO: Implement actual OpenAI API call
-    // This is a placeholder that would be replaced with the actual implementation
-    
-    // Simulated response for demonstration
-    return {
-      url: 'https://example.com/placeholder-image.png',
-      created: Date.now()
-    };
+    try {
+      // Using the OpenAI client library
+      const OpenAI = require('openai');
+      
+      // Initialize OpenAI client
+      const openai = new OpenAI({
+        apiKey: this.apiKey
+      });
+      
+      console.log(`Calling OpenAI API for DALL-E with prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`);
+      
+      // Make API call to generate image
+      const response = await openai.images.generate({
+        model: this.model,
+        prompt: prompt,
+        n: 1,
+        size: this.size,
+        response_format: 'url'
+      });
+      
+      console.log('OpenAI API response received');
+      
+      // Return the image URL from the response
+      return {
+        url: response.data[0].url,
+        created: Date.now()
+      };
+    } catch (error) {
+      console.error('Error calling OpenAI API:', error.message);
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
+      }
+      throw error;
+    }
   }
 
   /**
