@@ -1,0 +1,14 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" fill="#f0f0f0"/>
+  <g fill="none" stroke="#888" stroke-width="2">
+    <line x1="0" y1="0" x2="1024" y2="1024"/>
+    <line x1="0" y1="1024" x2="1024" y2="0"/>
+  </g>
+  <rect x="262" y="462" width="500" height="100" fill="#fff" stroke="#888" stroke-width="2"/>
+  <text x="512" y="520" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#888">
+    Image generation failed
+  </text>
+  <text x="512" y="550" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#888">
+    Please check your API key and try again
+  </text>
+</svg>
