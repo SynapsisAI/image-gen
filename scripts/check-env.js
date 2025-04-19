@@ -13,12 +13,14 @@ if (!openaiKey) {
   console.log(`   First 4 chars: ${openaiKey.substring(0, 4)}...`);
 }
 
-// Check Stability API Key (optional)
+// Check Stability API Key
 const stabilityKey = process.env.STABILITY_API_KEY;
 if (!stabilityKey) {
-  console.log('❔ STABILITY_API_KEY is not set (optional)');
+  console.log('❔ STABILITY_API_KEY is not set (required for Stable Diffusion)');
+  console.log('   To use Stable Diffusion, add it to your .env file');
 } else {
   console.log(`✅ STABILITY_API_KEY is set (${stabilityKey.length} characters)`);
+  console.log(`   First 4 chars: ${stabilityKey.substring(0, 4)}...`);
 }
 
 // Check .env file location

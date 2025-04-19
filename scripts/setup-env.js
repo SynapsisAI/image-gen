@@ -30,8 +30,8 @@ if (fileExists) {
 }
 
 function promptForKeys() {
-  rl.question('Enter your OpenAI API key: ', (openaiKey) => {
-    rl.question('Enter your Stability API key (optional, press Enter to skip): ', (stabilityKey) => {
+  rl.question('Enter your OpenAI API key (required for DALL-E): ', (openaiKey) => {
+    rl.question('Enter your Stability API key (required for Stable Diffusion): ', (stabilityKey) => {
       writeEnvFile(openaiKey, stabilityKey);
       rl.close();
     });
