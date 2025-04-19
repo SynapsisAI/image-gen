@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header {
+      background-color: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin: 0;
+      color: #333;
+    }
+    .item {
+      background-color: #fff;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .prompt {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #333;
+      font-weight: bold;
+    }
+    .context {
+      color: #666;
+      margin-bottom: 15px;
+      font-style: italic;
+    }
+    .images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .image-container {
+      flex: 1;
+      min-width: 300px;
+    }
+    .image-container img {
+      max-width: 100%;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .image-meta {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+    .model-name {
+      font-weight: bold;
+      color: #333;
+    }
+    .metadata {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      font-size: 14px;
+      color: #888;
+    }
+    .metadata-toggle {
+      cursor: pointer;
+      color: #0066cc;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>{{title}}</h1>
+      <p>Generated: {{generatedDate}}</p>
+    </header>
+    
+    {{#items}}
+    <div class="item">
+      <div class="prompt">"{{prompt}}"</div>
+      <div class="context">Context: {{context}}</div>
+      
+      <div class="images">
+        {{#images}}
+        <div class="image-container">
+          <img src="{{url}}" alt="{{prompt}}">
+          <div class="image-meta">
+            <span class="model-name">{{model}}</span>
+            <div>Generated: {{timestamp}}</div>
+          </div>
+        </div>
+        {{/images}}
+      </div>
+      
+      <div>
+        <span class="metadata-toggle" onclick="toggleMetadata('metadata-{{id}}')">
+          Show Metadata
+        </span>
+        <div id="metadata-{{id}}" class="metadata hidden">
+          <pre>{{metadataJson}}</pre>
+        </div>
+      </div>
+    </div>
+    {{/items}}
+  </div>
+  
+  <script>
+    function toggleMetadata(id) {
+      const element = document.getElementById(id);
+      const toggleElement = element.previousElementSibling;
+      
+      if (element.classList.contains('hidden')) {
+        element.classList.remove('hidden');
+        toggleElement.textContent = 'Hide Metadata';
+      } else {
+        element.classList.add('hidden');
+        toggleElement.textContent = 'Show Metadata';
+      }
+    }
+  </script>
+</body>
+</html>
