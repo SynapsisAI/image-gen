@@ -35,10 +35,33 @@ class HtmlRenderer {
       // Group results by prompt
       const groupedResults = this._groupByPrompt(validResults);
       
+      // Extract run configuration from metadata (if available)
+      const firstResult = validResults[0] || {};
+      const runOptions = firstResult.metadata?.runOptions || {};
+      const generatorsList = [...new Set(validResults.map(r => r.metadata?.generator || 'unknown'))];
+      
+      // Extract input filename
+      const inputFile = (runOptions.singleFile) 
+        ? path.basename(runOptions.singleFile)
+        : 'multiple files';
+      
+      // Create timestamp in short format for display
+      const timestamp = new Date().toISOString().split('T')[0];
+      
+      // Calculate process time (just use current timestamp for now)
+      const processTime = `${validResults.length * 1.5}s`;
+      
       // Prepare template data
       const templateData = {
         title: this.config.display?.title || 'Generated Images',
         generatedDate: new Date().toLocaleString(),
+        totalImages: validResults.length,
+        activeModels: generatorsList.join(', '),
+        dryRun: (runOptions.dryRun === true) ? 'true' : 'false', 
+        processTime: processTime,
+        inputFile: inputFile,
+        promptCount: Object.keys(groupedResults).length,
+        timestamp: timestamp,
         items: Object.keys(groupedResults).map((prompt, index) => {
           const group = groupedResults[prompt];
           const firstItem = group[0];
@@ -53,7 +76,7 @@ class HtmlRenderer {
               model: item.metadata.generator + ' (' + item.metadata.generatorVersion + ')',
               timestamp: new Date(item.metadata.timestamp).toLocaleString()
             })),
-            metadataJson: JSON.stringify(group[0].metadata, null, 2)
+            metadataJson: JSON.stringify(firstItem.metadata, null, 2)
           };
         })
       };

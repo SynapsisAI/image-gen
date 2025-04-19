@@ -4,134 +4,242 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{title}}</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      margin: 0;
-      padding: 20px;
-      background-color: #f5f5f5;
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+        },
+      },
     }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    header {
-      background-color: #fff;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    h1 {
-      margin: 0;
-      color: #333;
-    }
-    .item {
-      background-color: #fff;
-      padding: 20px;
-      margin-bottom: 30px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .prompt {
-      font-size: 18px;
-      margin-bottom: 15px;
-      color: #333;
-      font-weight: bold;
-    }
-    .context {
-      color: #666;
-      margin-bottom: 15px;
-      font-style: italic;
-    }
-    .images {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-    .image-container {
-      flex: 1;
-      min-width: 300px;
-    }
-    .image-container img {
-      max-width: 100%;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .image-meta {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #666;
-    }
-    .model-name {
-      font-weight: bold;
-      color: #333;
-    }
-    .metadata {
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #eee;
-      font-size: 14px;
-      color: #888;
-    }
-    .metadata-toggle {
-      cursor: pointer;
-      color: #0066cc;
-    }
-    .hidden {
-      display: none;
-    }
-  </style>
+  </script>
 </head>
-<body>
-  <div class="container">
-    <header>
-      <h1>{{title}}</h1>
-      <p>Generated: {{generatedDate}}</p>
-    </header>
-    
-    {{#items}}
-    <div class="item">
-      <div class="prompt">"{{prompt}}"</div>
-      <div class="context">Context: {{context}}</div>
-      
-      <div class="images">
-        {{#images}}
-        <div class="image-container">
-          <img src="{{url}}" alt="{{prompt}}">
-          <div class="image-meta">
-            <span class="model-name">{{model}}</span>
-            <div>Generated: {{timestamp}}</div>
+<body class="bg-neutral-100 dark:bg-zinc-950 font-mono text-neutral-800 dark:text-neutral-200">
+  <div class="container mx-auto py-8 px-4 max-w-6xl">
+    <!-- Terminal Header -->
+    <div class="bg-white dark:bg-black shadow-md border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden mb-8">
+      <div class="bg-neutral-100 dark:bg-zinc-900 px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+        <div class="flex items-center">
+          <div class="text-sm text-neutral-600 dark:text-neutral-400 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            image-gen_core.system — results
           </div>
         </div>
-        {{/images}}
+        
+        <div class="flex items-center space-x-2">
+          <div class="py-0.5 px-2 rounded bg-neutral-200 dark:bg-neutral-800">
+            <span class="text-xs text-neutral-600 dark:text-neutral-400 tracking-wider">SYSTEM.ACTIVE</span>
+          </div>
+          <div class="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400 animate-pulse"></div>
+        </div>
       </div>
       
-      <div>
-        <span class="metadata-toggle" onclick="toggleMetadata('metadata-{{id}}')">
-          Show Metadata
-        </span>
-        <div id="metadata-{{id}}" class="metadata hidden">
-          <pre>{{metadataJson}}</pre>
+      <div class="p-5 bg-white dark:bg-black">
+        <div class="space-y-6">
+          <div class="font-mono space-y-1 text-sm">
+            <p class="text-neutral-500 dark:text-neutral-500">// AI IMAGE GENERATION RESEARCH</p>
+            <p class="text-neutral-700 dark:text-neutral-300 mb-2">
+              <span class="text-neutral-400 dark:text-neutral-500">$</span> <span class="text-neutral-800 dark:text-neutral-200">image-gen</span> <span class="text-neutral-500 dark:text-neutral-400">--info</span>
+            </p>
+            <div class="pl-4 border-l border-neutral-200 dark:border-neutral-800 mb-2">
+              <p class="text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                <span class="text-blue-500 dark:text-blue-400">TITLE:</span> {{title}}
+              </p>
+              <p class="text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                <span class="text-blue-500 dark:text-blue-400">GENERATED:</span> {{generatedDate}}
+              </p>
+              <p class="text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                <span class="text-blue-500 dark:text-blue-400">TOTAL IMAGES:</span> {{totalImages}}
+              </p>
+              <div class="flex flex-wrap gap-3 mt-3">
+                <span class="px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded text-xs">image.generation</span>
+                <span class="px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded text-xs">prompt.engineering</span>
+                <span class="px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded text-xs">model.comparison</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- System Stats -->
+          <div class="border border-neutral-200 dark:border-neutral-800 rounded overflow-hidden bg-neutral-50 dark:bg-zinc-900">
+            <div class="border-b border-neutral-200 dark:border-neutral-800 px-3 py-1.5 bg-neutral-100 dark:bg-zinc-900 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3.5 w-3.5 mr-2 text-neutral-500 dark:text-neutral-500">
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+              </svg>
+              <code class="text-xs font-bold text-neutral-700 dark:text-neutral-300">RUN.CONFIG</code>
+            </div>
+            
+            <div class="p-3">
+              <div class="text-xs text-neutral-600 dark:text-neutral-400 font-mono grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-4">
+                <div>
+                  <span class="text-neutral-400 dark:text-neutral-500">models: </span>
+                  <span>{{activeModels}}</span>
+                </div>
+                <div>
+                  <span class="text-neutral-400 dark:text-neutral-500">dry-run: </span>
+                  <span>{{dryRun}}</span>
+                </div>
+                <div>
+                  <span class="text-neutral-400 dark:text-neutral-500">time: </span>
+                  <span>{{processTime}}</span>
+                </div>
+                <div>
+                  <span class="text-neutral-400 dark:text-neutral-500">version: </span>
+                  <span>v0.1.0</span>
+                </div>
+                <div>
+                  <span class="text-neutral-400 dark:text-neutral-500">input: </span>
+                  <span>{{inputFile}}</span>
+                </div>
+                <div>
+                  <span class="text-neutral-400 dark:text-neutral-500">prompts: </span>
+                  <span>{{promptCount}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Terminal Footer -->
+      <div class="bg-neutral-50 dark:bg-zinc-900 px-4 py-1.5 border-t border-neutral-200 dark:border-neutral-800 flex justify-between text-xs">
+        <div class="flex items-center space-x-3 text-neutral-500 dark:text-neutral-500">
+          <span>v0.1.0</span>
+          <span>|</span>
+          <span>image.engine</span>
+        </div>
+        <div class="flex items-center space-x-2 text-neutral-500 dark:text-neutral-500">
+          <span>generated.{{timestamp}}</span>
+          <div class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400 animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Results Loop -->
+    {{#items}}
+    <div class="bg-white dark:bg-black shadow-md border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden mb-8">
+      <div class="bg-neutral-100 dark:bg-zinc-900 px-4 py-2 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+        <div class="flex items-center">
+          <div class="text-sm text-neutral-600 dark:text-neutral-400 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            prompt_{{id}}.data
+          </div>
+        </div>
+      </div>
+      
+      <div class="p-5 bg-white dark:bg-black">
+        <div class="space-y-4">
+          <!-- Prompt -->
+          <div class="font-mono space-y-1">
+            <p class="text-neutral-500 dark:text-neutral-500">// GENERATION PROMPT</p>
+            <div class="border border-neutral-200 dark:border-neutral-800 rounded p-3 bg-neutral-50 dark:bg-zinc-900">
+              <p class="text-neutral-700 dark:text-neutral-300">"{{prompt}}"</p>
+            </div>
+          </div>
+          
+          <!-- Context -->
+          <div class="font-mono space-y-1">
+            <p class="text-neutral-500 dark:text-neutral-500">// SOURCE CONTEXT</p>
+            <div class="border border-neutral-200 dark:border-neutral-800 rounded p-3 bg-neutral-50 dark:bg-zinc-900">
+              <p class="text-neutral-600 dark:text-neutral-400 text-sm">{{context}}</p>
+            </div>
+          </div>
+          
+          <!-- Images -->
+          <div class="font-mono space-y-1">
+            <p class="text-neutral-500 dark:text-neutral-500">// GENERATED IMAGES</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {{#images}}
+              <div class="border border-neutral-200 dark:border-neutral-800 rounded overflow-hidden">
+                <div class="border-b border-neutral-200 dark:border-neutral-800 px-3 py-1.5 bg-neutral-100 dark:bg-zinc-900 flex items-center justify-between">
+                  <span class="text-xs text-neutral-700 dark:text-neutral-300 font-bold">{{model}}</span>
+                  <span class="text-xs text-neutral-500 dark:text-neutral-500">{{timestamp}}</span>
+                </div>
+                <div class="p-2">
+                  <img src="{{url}}" alt="{{prompt}}" class="w-full rounded">
+                </div>
+              </div>
+              {{/images}}
+            </div>
+          </div>
+          
+          <!-- Metadata Expandable -->
+          <div class="font-mono space-y-1">
+            <p class="text-neutral-500 dark:text-neutral-500">// GENERATION METADATA</p>
+            <div class="border border-neutral-200 dark:border-neutral-800 rounded overflow-hidden">
+              <div class="border-b border-neutral-200 dark:border-neutral-800 px-3 py-1.5 bg-neutral-100 dark:bg-zinc-900 flex items-center justify-between cursor-pointer" onclick="toggleMetadata('metadata-{{id}}')">
+                <span class="text-xs text-neutral-700 dark:text-neutral-300 font-bold">metadata.json</span>
+                <span class="text-xs text-blue-500 dark:text-blue-400" id="toggle-text-{{id}}">+ show</span>
+              </div>
+              <div id="metadata-{{id}}" class="p-3 bg-neutral-50 dark:bg-zinc-900 hidden">
+                <pre class="text-xs text-neutral-600 dark:text-neutral-400 overflow-x-auto">{{metadataJson}}</pre>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
     {{/items}}
   </div>
   
+  <!-- Theme Toggle Button -->
+  <button id="theme-toggle" class="fixed top-4 right-4 px-3 py-2 flex items-center justify-center bg-white dark:bg-zinc-800 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)] z-50 transition-all hover:scale-105 focus:outline-none" aria-label="Toggle theme">
+    <span class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+      <span class="dark:hidden">🌙</span>
+      <span class="hidden dark:inline">☀️</span>
+    </span>
+  </button>
+
   <script>
     function toggleMetadata(id) {
       const element = document.getElementById(id);
-      const toggleElement = element.previousElementSibling;
+      const toggleElement = document.getElementById('toggle-text-' + id.split('-')[1]);
       
       if (element.classList.contains('hidden')) {
         element.classList.remove('hidden');
-        toggleElement.textContent = 'Hide Metadata';
+        toggleElement.textContent = '- hide';
       } else {
         element.classList.add('hidden');
-        toggleElement.textContent = 'Show Metadata';
+        toggleElement.textContent = '+ show';
       }
+    }
+    
+    // Theme toggling functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    
+    // Function to toggle theme
+    function toggleTheme() {
+      if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.theme = 'light';
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.theme = 'dark';
+      }
+    }
+    
+    // Add event listener to toggle button
+    themeToggle.addEventListener('click', toggleTheme);
+    
+    // Check for saved theme preference or use system preference
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
   </script>
 </body>
