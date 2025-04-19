@@ -86,6 +86,15 @@ class ImageGenApp {
             console.log(`Skipping ${type} generator - no API key provided`);
             continue;
           }
+        } else if (type === 'gpt4o') {
+          genConfig = this.config.apis.gpt4o;
+          // Use same API key as OpenAI since GPT-4o uses the OpenAI API
+          if (!this.config.apis.openai.apiKey) {
+            console.log(`Skipping ${type} generator - no OpenAI API key provided`);
+            continue;
+          }
+          // Set the API key explicitly from the OpenAI config
+          genConfig.apiKey = this.config.apis.openai.apiKey;
         } else {
           // For other generator types, use empty config
           genConfig = {};
@@ -134,61 +143,123 @@ class ImageGenApp {
         return { results, totalGenerated };
       }
       
-      promptLoop:
+      // Process prompts up to the limit
+      const promptsToProcess = [];
+      let countForLimit = currentTotal;
+      
+      // Prepare prompt-generator pairs to process, respecting limits
       for (const item of promptItems) {
         // Create a placeholder for dry run or apply image limit
         const generatorsToUse = this.options.imageLimit === 0 ? [] : 
           this.generators.slice(0, this.options.imageLimit);
         
         for (const generator of generatorsToUse) {
-          try {
-            // Check if we've reached the total limit
-            if (totalGenerated >= this.options.totalLimit) {
-              console.log(`Reached total image limit (${this.options.totalLimit}), stopping generation`);
-              break promptLoop;
-            }
-            
-            let result;
-            
-            if (this.options.dryRun) {
-              // Create a placeholder result for dry run
-              result = {
-                url: 'https://example.com/placeholder-dry-run.png',
-                prompt: item.prompt,
-                model: generator.model || 'unknown',
-                metadata: {
-                  ...item.metadata,
-                  timestamp: new Date().toISOString(),
-                  generator: generator.name,
-                  generatorVersion: generator.model || 'unknown',
-                  dryRun: true,
+          // Check if we've reached the total limit
+          if (countForLimit >= this.options.totalLimit) {
+            console.log(`Would exceed total image limit (${this.options.totalLimit}), skipping remaining generators`);
+            break;
+          }
+          
+          // Add this prompt-generator pair to our processing queue
+          promptsToProcess.push({ prompt: item, generator });
+          countForLimit++;
+        }
+        
+        // Break if we've reached the total limit
+        if (countForLimit >= this.options.totalLimit) {
+          console.log(`Would exceed total image limit (${this.options.totalLimit}), skipping remaining prompts`);
+          break;
+        }
+      }
+      
+      console.log(`Processing ${promptsToProcess.length} prompt-generator combinations`);
+      
+      // Group prompts by generator type to avoid rate limiting issues
+      const generatorGroups = {};
+      
+      for (const item of promptsToProcess) {
+        const genName = item.generator.name;
+        if (!generatorGroups[genName]) {
+          generatorGroups[genName] = [];
+        }
+        generatorGroups[genName].push(item);
+      }
+      
+      // Process each generator type with appropriate concurrency
+      for (const [generatorName, items] of Object.entries(generatorGroups)) {
+        console.log(`Processing ${items.length} prompts for ${generatorName}...`);
+        
+        // Set concurrency limits based on the generator type
+        // OpenAI has stricter rate limits, so we process these more carefully
+        const concurrencyLimit = generatorName.includes('dall-e') || generatorName.includes('gpt4o') ? 1 : 5;
+        
+        // Process in batches to respect rate limits
+        for (let i = 0; i < items.length; i += concurrencyLimit) {
+          const batch = items.slice(i, i + concurrencyLimit);
+          
+          // Process batch in parallel
+          const batchPromises = batch.map(async ({ prompt, generator }) => {
+            try {
+              let result;
+              
+              if (this.options.dryRun) {
+                // Create a placeholder result for dry run
+                result = {
+                  url: 'https://example.com/placeholder-dry-run.png',
+                  prompt: prompt.prompt,
+                  model: generator.model || 'unknown',
+                  metadata: {
+                    ...prompt.metadata,
+                    timestamp: new Date().toISOString(),
+                    generator: generator.name,
+                    generatorVersion: generator.model || 'unknown',
+                    dryRun: true,
+                    runOptions: { ...this.options }
+                  }
+                };
+                console.log(`[DRY RUN] Would generate image with ${generator.name}: "${prompt.prompt}"`);
+              } else {
+                // Actually generate the image
+                result = await generator.generateImage(prompt.prompt, {
+                  ...prompt.metadata,
                   runOptions: { ...this.options }
-                }
-              };
-              console.log(`[DRY RUN] Would generate image with ${generator.name}: "${item.prompt}"`);
+                });
+                
+                // Increment counter only if generation succeeded
+                totalGenerated++;
+                
+                console.log(`Generated image ${totalGenerated}/${this.options.totalLimit !== Infinity ? this.options.totalLimit : '∞'} with ${generator.name}`);
+              }
               
-              // In dry run mode, still count toward limits
-              totalGenerated++;
-            } else {
-              // Actually generate the image
-              result = await generator.generateImage(item.prompt, {
-                ...item.metadata,
-                runOptions: { ...this.options }
-              });
-              totalGenerated++;
+              // Add source information to the result
+              result.source = prompt.source;
               
-              console.log(`Generated image ${totalGenerated}/${this.options.totalLimit !== Infinity ? this.options.totalLimit : '∞'}`);
+              return result;
+            } catch (error) {
+              console.error(`Error generating image with ${generator.name}:`, error.message);
+              return null; // Return null for failed generations
             }
-            
-            // Add source information to the result
-            result.source = item.source;
-            
+          });
+          
+          // Wait for batch to complete
+          const batchResults = await Promise.all(batchPromises);
+          
+          // Add successful results to the final results array
+          batchResults.filter(result => result !== null).forEach(result => {
             results.push(result);
-          } catch (error) {
-            console.error(`Error generating image with ${generator.name}:`, error.message);
+          });
+          
+          // Add a small delay between batches for API rate limiting
+          if (i + concurrencyLimit < items.length && !this.options.dryRun && 
+              (generatorName.includes('dall-e') || generatorName.includes('gpt4o'))) {
+            console.log('Pausing briefly to avoid rate limits...');
+            await new Promise(resolve => setTimeout(resolve, 1500));
           }
         }
       }
+      
+      console.log(`${this.options.dryRun ? 'Would generate' : 'Generated'} ${results.length} images`);
+      
       
       return { results, totalGenerated };
     } catch (error) {

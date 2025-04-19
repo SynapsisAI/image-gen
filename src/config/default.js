@@ -11,7 +11,7 @@ module.exports = {
     },
     stability: {
       apiKey: process.env.STABILITY_API_KEY || '',
-      model: 'stable-diffusion-xl-turbo',
+      model: 'stable-diffusion-xl-1024-v1-0',
       steps: 30,
       cfgScale: 7
     },
@@ -31,7 +31,7 @@ module.exports = {
   },
   
   // Default generators to use
-  generators: ['dall-e', 'stable-diffusion', 'gpt4o'],
+  generators: ['dall-e', 'stable-diffusion'],
   
   // HTML display settings
   display: {
