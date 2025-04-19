@@ -1,0 +1,26 @@
+{
+  "name": "image-gen",
+  "version": "0.1.0",
+  "description": "AI image generation for contextual document summaries",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ai",
+    "images",
+    "dall-e",
+    "stable-diffusion"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "openai": "^4.0.0",
+    "node-fetch": "^2.6.9"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
