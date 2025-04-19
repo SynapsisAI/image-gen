@@ -5,6 +5,13 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
+    "dry-run": "node src/index.js --dry-run",
+    "single": "node src/index.js --file",
+    "demo": "node src/index.js --total 3 --dry-run",
+    "digital-literacy": "node src/index.js -f input/Digital\\ Literacy.json -l 1",
+    "check-env": "node scripts/check-env.js",
+    "setup-env": "node scripts/setup-env.js",
+    "interactive": "node src/interactive.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -16,9 +23,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "dotenv": "^16.0.3",
-    "openai": "^4.0.0",
-    "node-fetch": "^2.6.9"
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "node-fetch": "^2.6.9",
+    "open": "^10.1.1",
+    "openai": "^4.0.0"
   },
   "engines": {
     "node": ">=14.0.0"
