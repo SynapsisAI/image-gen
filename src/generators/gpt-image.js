@@ -113,8 +113,7 @@ class GptImageGenerator extends ImageGenerator {
         prompt: prompt,
         n: 1,
         size: this.size,
-        quality: this.quality,
-        response_format: 'b64_json'
+        quality: this.quality
       };
       
       // Add conditional parameters if they're non-default
@@ -127,9 +126,13 @@ class GptImageGenerator extends ImageGenerator {
       
       console.log(`OpenAI API response received for ${this.model} image generation`);
       
-      // Get base64 image data
-      const imageBase64 = response.data[0].b64_json;
-      const buffer = Buffer.from(imageBase64, 'base64');
+      // Get image URL from response
+      const imageUrl = response.data[0].url;
+      
+      // Fetch the image from the URL
+      const fetch = require('node-fetch');
+      const imageResponse = await fetch(imageUrl);
+      const buffer = await imageResponse.buffer();
       
       // Save the image to disk
       const timestamp = Date.now();
