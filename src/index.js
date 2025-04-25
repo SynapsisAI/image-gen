@@ -86,9 +86,9 @@ class ImageGenApp {
             console.log(`Skipping ${type} generator - no API key provided`);
             continue;
           }
-        } else if (type === 'gpt4o') {
-          genConfig = this.config.apis.gpt4o;
-          // Use same API key as OpenAI since GPT-4o uses the OpenAI API
+        } else if (type === 'gpt-image') {
+          genConfig = this.config.apis['gpt-image'];
+          // Use same API key as OpenAI since GPT Image uses the OpenAI API
           if (!this.config.apis.openai.apiKey) {
             console.log(`Skipping ${type} generator - no OpenAI API key provided`);
             continue;
@@ -191,7 +191,7 @@ class ImageGenApp {
         
         // Set concurrency limits based on the generator type
         // OpenAI has stricter rate limits, so we process these more carefully
-        const concurrencyLimit = generatorName.includes('dall-e') || generatorName.includes('gpt4o') ? 1 : 5;
+        const concurrencyLimit = generatorName.includes('dall-e') || generatorName.includes('gpt-image') ? 1 : 5;
         
         // Process in batches to respect rate limits
         for (let i = 0; i < items.length; i += concurrencyLimit) {
@@ -251,7 +251,7 @@ class ImageGenApp {
           
           // Add a small delay between batches for API rate limiting
           if (i + concurrencyLimit < items.length && !this.options.dryRun && 
-              (generatorName.includes('dall-e') || generatorName.includes('gpt4o'))) {
+              (generatorName.includes('dall-e') || generatorName.includes('gpt-image'))) {
             console.log('Pausing briefly to avoid rate limits...');
             await new Promise(resolve => setTimeout(resolve, 1500));
           }
