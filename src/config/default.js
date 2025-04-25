@@ -19,7 +19,7 @@ module.exports = {
       apiKey: process.env.OPENAI_API_KEY || '',  // Uses the same OpenAI API key
       model: 'gpt-image-1',
       size: '1024x1024',
-      quality: 'standard',
+      quality: 'auto',  // Valid values: 'low', 'medium', 'high', 'auto'
       background: 'auto',
       format: 'png'
     }

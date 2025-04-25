@@ -16,7 +16,7 @@ class GptImageGenerator extends ImageGenerator {
     this.apiKey = config.apiKey;
     this.model = config.model || 'gpt-image-1';
     this.size = config.size || '1024x1024';
-    this.quality = config.quality || 'standard';
+    this.quality = config.quality || 'auto';
     this.background = config.background || 'auto';
     this.format = config.format || 'png';
     
@@ -114,6 +114,7 @@ class GptImageGenerator extends ImageGenerator {
         n: 1,
         size: this.size,
         quality: this.quality
+        // Note: response_format parameter is in the docs but rejected by the API
       };
       
       // Add conditional parameters if they're non-default
@@ -126,13 +127,26 @@ class GptImageGenerator extends ImageGenerator {
       
       console.log(`OpenAI API response received for ${this.model} image generation`);
       
-      // Get image URL from response
-      const imageUrl = response.data[0].url;
+      // Check if we have data in the response
+      if (!response.data || !response.data[0]) {
+        throw new Error('No data in API response');
+      }
       
-      // Fetch the image from the URL
-      const fetch = require('node-fetch');
-      const imageResponse = await fetch(imageUrl);
-      const buffer = await imageResponse.buffer();
+      let buffer;
+      // Handle both b64_json and url response formats
+      if (response.data[0].b64_json) {
+        // Convert base64 to buffer
+        buffer = Buffer.from(response.data[0].b64_json, 'base64');
+      } else if (response.data[0].url) {
+        // Fetch image from the URL
+        const imageUrl = response.data[0].url;
+        
+        const fetch = require('node-fetch');
+        const imageResponse = await fetch(imageUrl);
+        buffer = await imageResponse.buffer();
+      } else {
+        throw new Error('No URL or b64_json in API response');
+      }
       
       // Save the image to disk
       const timestamp = Date.now();
