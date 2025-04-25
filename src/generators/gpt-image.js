@@ -3,46 +3,47 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * GPT-4o image generator implementation using OpenAI API
+ * GPT Image generator implementation using OpenAI API
  */
-class GPT4oGenerator extends ImageGenerator {
+class GptImageGenerator extends ImageGenerator {
   /**
-   * Create a new GPT-4o generator
+   * Create a new GPT Image generator
    * @param {Object} config - Configuration with apiKey and additional settings
    */
   constructor(config = {}) {
     super(config);
-    this.name = 'gpt4o';
+    this.name = 'gpt-image';
     this.apiKey = config.apiKey;
-    this.model = 'gpt-4o';
+    this.model = config.model || 'gpt-image-1';
     this.size = config.size || '1024x1024';
-    this.style = config.style || 'natural';
     this.quality = config.quality || 'standard';
+    this.background = config.background || 'auto';
+    this.format = config.format || 'png';
     
     // More detailed error message for missing or empty API key
     if (!this.apiKey) {
       console.error('OpenAI API key is missing or empty!');
       console.error('Please add OPENAI_API_KEY to your .env file');
       console.error('Make sure the .env file exists in the project root directory');
-      throw new Error('OpenAI API key is required for GPT-4o generator');
+      throw new Error('OpenAI API key is required for GPT Image generator');
     }
     
     // Log key length for debugging (not the actual key)
-    console.log(`GPT-4o initialized with API key (${this.apiKey.length} characters)`);
+    console.log(`GPT Image initialized with API key (${this.apiKey.length} characters)`);
   }
 
   /**
-   * Generate an image using GPT-4o
+   * Generate an image using GPT Image
    * @param {string} prompt - The image generation prompt
    * @param {Object} metadata - Additional metadata for the image
    * @returns {Promise<Object>} - The generated image data
    */
   async generateImage(prompt, metadata = {}) {
     try {
-      console.log(`Generating image with GPT-4o: ${prompt}`);
+      console.log(`Generating image with ${this.model}: ${prompt}`);
       
-      // Call OpenAI API for GPT-4o image generation
-      const response = await this._callGPT4oAPI(prompt);
+      // Call OpenAI API for GPT Image generation
+      const response = await this._callGptImageAPI(prompt);
       
       return {
         url: response.url,
@@ -54,12 +55,13 @@ class GPT4oGenerator extends ImageGenerator {
           generator: this.name,
           generatorVersion: this.model,
           size: this.size,
-          style: this.style,
-          quality: this.quality
+          quality: this.quality,
+          background: this.background,
+          format: this.format
         }
       };
     } catch (error) {
-      console.error('GPT-4o generation error:', error);
+      console.error('GPT Image generation error:', error);
       
       // Return a placeholder image instead of failing completely
       console.log('Using placeholder image due to API error');
@@ -74,8 +76,9 @@ class GPT4oGenerator extends ImageGenerator {
           generator: this.name,
           generatorVersion: this.model,
           size: this.size,
-          style: this.style,
           quality: this.quality,
+          background: this.background,
+          format: this.format,
           error: error.message,
           isPlaceholder: true
         }
@@ -84,11 +87,11 @@ class GPT4oGenerator extends ImageGenerator {
   }
 
   /**
-   * Private method to call OpenAI API for GPT-4o image generation
+   * Private method to call OpenAI API for GPT Image generation
    * @param {string} prompt - The image prompt
    * @returns {Promise<Object>} - The API response
    */
-  async _callGPT4oAPI(prompt) {
+  async _callGptImageAPI(prompt) {
     try {
       // Ensure output directory exists
       const outputDir = path.join(process.cwd(), 'output', 'images');
@@ -102,33 +105,35 @@ class GPT4oGenerator extends ImageGenerator {
         apiKey: this.apiKey
       });
       
-      console.log(`Calling OpenAI API for GPT-4o with prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`);
+      console.log(`Calling OpenAI API for ${this.model} with prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`);
       
-      // Make API call to generate image
-      const response = await openai.images.generate({
+      // Prepare request parameters
+      const requestParams = {
         model: this.model,
         prompt: prompt,
         n: 1,
         size: this.size,
-        style: this.style,
         quality: this.quality,
-        response_format: 'url'
-      });
+        response_format: 'b64_json'
+      };
       
-      console.log('OpenAI API response received for GPT-4o image generation');
+      // Add conditional parameters if they're non-default
+      if (this.background !== 'auto') {
+        requestParams.background = this.background;
+      }
       
-      // Get the image URL from the response
-      const imageUrl = response.data[0].url;
+      // Make API call to generate image
+      const response = await openai.images.generate(requestParams);
       
-      // For most API responses, we'd need to download the image
-      // as the URLs from OpenAI are temporary
-      const fetch = require('node-fetch');
-      const imageResponse = await fetch(imageUrl);
-      const buffer = await imageResponse.buffer();
+      console.log(`OpenAI API response received for ${this.model} image generation`);
+      
+      // Get base64 image data
+      const imageBase64 = response.data[0].b64_json;
+      const buffer = Buffer.from(imageBase64, 'base64');
       
       // Save the image to disk
       const timestamp = Date.now();
-      const filename = `gpt4o-${timestamp}.png`;
+      const filename = `gpt-image-${timestamp}.${this.format}`;
       const filePath = path.join(outputDir, filename);
       
       await fs.promises.writeFile(filePath, buffer);
@@ -142,7 +147,7 @@ class GPT4oGenerator extends ImageGenerator {
         created: timestamp
       };
     } catch (error) {
-      console.error('Error calling OpenAI API for GPT-4o:', error.message);
+      console.error(`Error calling OpenAI API for ${this.model}:`, error.message);
       if (error.response) {
         console.error('Response status:', error.response.status);
         console.error('Response data:', error.response.data);
@@ -152,7 +157,7 @@ class GPT4oGenerator extends ImageGenerator {
   }
 
   /**
-   * Get GPT-4o capabilities
+   * Get GPT Image capabilities
    * @returns {Object} - Object describing capabilities
    */
   getCapabilities() {
@@ -160,16 +165,14 @@ class GPT4oGenerator extends ImageGenerator {
       name: this.name,
       supportsNegativePrompts: false,
       maxPromptLength: 4000,
-      supportedSizes: ['256x256', '512x512', '1024x1024', '2048x2048', '4096x4096'],
-      supportedFormats: ['png'],
+      supportedSizes: ['1024x1024', '1536x1024', '1024x1536'],
+      supportedFormats: ['png', 'jpeg', 'webp'],
       modelVersion: this.model,
-      supportedStyles: [
-        'vivid', 'natural', 'anime', 'cinematic', 'digital-art', 
-        'painterly', 'pixel-art', 'photographic'
-      ],
-      supportedQuality: ['standard', 'hd']
+      supportedQualities: ['low', 'medium', 'high', 'auto'],
+      supportedBackgrounds: ['auto', 'transparent'],
+      transparentBackgroundFormats: ['png', 'webp']
     };
   }
 }
 
-module.exports = GPT4oGenerator;
+module.exports = GptImageGenerator;

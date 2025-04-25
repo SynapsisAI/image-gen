@@ -4,7 +4,7 @@
 This document outlines the implementation plan for the image generation component of our project. The goal is to build a system that can:
 
 1. Generate contextual images based on input JSON files containing text summaries
-2. Use multiple AI image generation models (DALL-E and Stable Diffusion initially)
+2. Use multiple AI image generation models (DALL-E, GPT Image, and Stable Diffusion)
 3. Display generated images alongside prompts in a simple HTML interface
 4. Support future extension to additional image generation models
 
@@ -45,6 +45,7 @@ src/
   ├── generators/       # Image generation implementations
   │   ├── base.js       # Abstract generator interface
   │   ├── dalle.js      # OpenAI DALL-E implementation
+  │   ├── gpt-image.js  # OpenAI GPT Image implementation
   │   ├── stable.js     # Stable Diffusion implementation
   │   └── index.js      # Generator factory/registry
   ├── parser/           # JSON input processing
@@ -88,6 +89,12 @@ class ImageGenerator {
 - Handle response parsing and error conditions
 - Include prompt optimization for DALL-E
 
+#### GPT Image Implementation
+- Integrate with OpenAI's Images API
+- Support latest GPT Image model (gpt-image-1)
+- Allow customization of quality, size, and background transparency
+- Support multiple output formats (PNG, JPEG, WebP)
+
 #### Stable Diffusion Implementation
 - Integrate with Stability AI's API
 - Support model selection (SD 1.5, 2.1, SDXL, etc.)
@@ -113,6 +120,12 @@ class ImageGenerator {
 - Prompt formatting
 - Response handling
 - Rate limiting and error management
+
+### OpenAI (GPT Image)
+- API Key configuration (same as DALL-E)
+- Support for quality levels (low, medium, high)
+- Support for transparent backgrounds
+- Support for different output formats and sizes
 
 ### Stability AI (Stable Diffusion)
 - API Key configuration

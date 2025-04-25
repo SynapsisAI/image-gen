@@ -15,11 +15,13 @@ module.exports = {
       steps: 30,
       cfgScale: 7
     },
-    gpt4o: {
+    'gpt-image': {
       apiKey: process.env.OPENAI_API_KEY || '',  // Uses the same OpenAI API key
+      model: 'gpt-image-1',
       size: '1024x1024',
-      style: 'natural',
-      quality: 'standard'
+      quality: 'standard',
+      background: 'auto',
+      format: 'png'
     }
   },
   
@@ -31,7 +33,7 @@ module.exports = {
   },
   
   // Default generators to use
-  generators: ['dall-e', 'stable-diffusion'],
+  generators: ['dall-e', 'stable-diffusion', 'gpt-image'],
   
   // HTML display settings
   display: {

@@ -6,7 +6,8 @@ This project enables generation of contextual images for document summarization 
 
 - Processes structured JSON input files with paragraphs and image tags
 - Supports multiple image generation models:
-  - OpenAI DALL-E 
+  - OpenAI DALL-E
+  - OpenAI GPT Image
   - Stability AI Stable Diffusion
 - Generates comparative HTML output showing:
   - Original prompts
