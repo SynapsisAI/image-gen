@@ -1,4 +1,7 @@
 const ImageGenerator = require('./base');
+const fs = require('fs');
+const path = require('path');
+const fetch = require('node-fetch');
 
 /**
  * DALL-E image generator implementation using OpenAI API
@@ -80,6 +83,10 @@ class DalleGenerator extends ImageGenerator {
    */
   async _callOpenAIAPI(prompt) {
     try {
+      // Ensure output directory exists
+      const outputDir = path.join(process.cwd(), 'output', 'images');
+      await fs.promises.mkdir(outputDir, { recursive: true });
+      
       // Using the OpenAI client library
       const OpenAI = require('openai');
       
@@ -96,15 +103,29 @@ class DalleGenerator extends ImageGenerator {
         prompt: prompt,
         n: 1,
         size: this.size,
-        response_format: 'url'
+        response_format: 'b64_json'  // Changed to b64_json to get the image data directly
       });
       
       console.log('OpenAI API response received');
       
-      // Return the image URL from the response
+      // Get base64 image data
+      const imageBase64 = response.data[0].b64_json;
+      const buffer = Buffer.from(imageBase64, 'base64');
+      
+      // Save the image to disk
+      const timestamp = Date.now();
+      const filename = `dalle-${timestamp}.png`;
+      const filePath = path.join(outputDir, filename);
+      
+      await fs.promises.writeFile(filePath, buffer);
+      console.log(`Saved generated image to ${filePath}`);
+      
+      // Return a local path to the image
+      const relativePath = path.join('images', filename);
+      
       return {
-        url: response.data[0].url,
-        created: Date.now()
+        url: relativePath,
+        created: timestamp
       };
     } catch (error) {
       console.error('Error calling OpenAI API:', error.message);
